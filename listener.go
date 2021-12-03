@@ -20,6 +20,7 @@ func ListenerFunc(l ListenFunc) Listener {
 		wg:    &sync.WaitGroup{},
 	}
 	listener.Listen()
+
 	return listener
 }
 
@@ -41,7 +42,6 @@ func (l *DefaultListener) Listen() {
 		}
 		l.wg.Done()
 	}()
-
 }
 
 func (l *DefaultListener) Close() {

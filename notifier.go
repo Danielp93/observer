@@ -25,7 +25,6 @@ func (d *DefaultNotifier) Subscribe(listeners ...Listener) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.listeners = append(d.listeners, listeners...)
-
 }
 
 func (d *DefaultNotifier) Unsubscribe(listeners ...Listener) {
