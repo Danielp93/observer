@@ -24,20 +24,17 @@ func NewDefaultNotifier() Notifier {
 func (d *DefaultNotifier) Subscribe(listeners ...Listener) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	for _, l := range listeners {
-		d.listeners = append(d.listeners, l)
-		go l.Listen()
-	}
+	d.listeners = append(d.listeners, listeners...)
+
 }
 
 func (d *DefaultNotifier) Unsubscribe(listeners ...Listener) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	for _, l := range listeners {
-		for i, value := range d.listeners {
-			if value == l {
+	for _, l := range d.listeners {
+		for i, listener := range listeners {
+			if listener == l {
 				d.listeners = append(d.listeners[:i], d.listeners[i+1:]...)
-				close(l.GetChan())
 			}
 		}
 	}
@@ -45,6 +42,6 @@ func (d *DefaultNotifier) Unsubscribe(listeners ...Listener) {
 
 func (d *DefaultNotifier) Notify(m Message) {
 	for _, l := range d.listeners {
-		l.GetChan() <- m
+		l.Send(m)
 	}
 }

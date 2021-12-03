@@ -1,31 +1,50 @@
 package observer
 
+import (
+	"sync"
+)
+
 type Listener interface {
-	GetChan() chan Message
 	Listen()
+	Send(Message)
+
+	Close()
 }
 
 type ListenFunc func(Message)
 
-type DefaultListener struct {
-	l chan Message
-	h ListenFunc
+func ListenerFunc(l ListenFunc) Listener {
+	listener := &DefaultListener{
+		mChan: make(chan Message),
+		f:     l,
+		wg:    &sync.WaitGroup{},
+	}
+	listener.Listen()
+	return listener
 }
 
-func (l *DefaultListener) GetChan() chan Message {
-	return l.l
+type DefaultListener struct {
+	mChan chan Message
+	f     ListenFunc
+	wg    *sync.WaitGroup
+}
+
+func (l *DefaultListener) Send(message Message) {
+	l.mChan <- message
 }
 
 func (l *DefaultListener) Listen() {
-	for {
-		message := <-l.GetChan()
-		l.h(message)
-	}
+	l.wg.Add(1)
+	go func() {
+		for message := range l.mChan {
+			l.f(message)
+		}
+		l.wg.Done()
+	}()
+
 }
 
-func ListenerFunc(handlerFunc ListenFunc) Listener {
-	return &DefaultListener{
-		l: make(chan Message),
-		h: handlerFunc,
-	}
+func (l *DefaultListener) Close() {
+	close(l.mChan)
+	l.wg.Wait()
 }

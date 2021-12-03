@@ -12,6 +12,10 @@ func main() {
 	if n == nil {
 		return
 	}
+	n2 := observer.NewDefaultNotifier()
+	if n == nil {
+		return
+	}
 
 	// Create Listener from Listenerfunc (func(Message))
 	// This is a simple Listener that will print out the message
@@ -24,12 +28,16 @@ func main() {
 			fmt.Println(message)
 		}
 	})
+	// listener uses a channel under the hood, Close it for garbage collection
+	defer l.Close()
 
 	// Subscribe Listener to Notifier
 	n.Subscribe(l)
-	defer n.Unsubscribe(l)
+	n2.Subscribe(l)
 
-	m := observer.NewMessage("ECHO", "Hello from the other side!")
+	m := observer.NewMessage("Hello from the other side!", "ECHO")
+	m2 := observer.NewMessage("Hello also from me!", "OTHERECHO")
 
 	n.Notify(m)
+	n2.Notify(m2)
 }

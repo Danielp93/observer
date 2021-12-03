@@ -36,6 +36,10 @@ func main() {
 	if n == nil {
 		return
 	}
+	n2 := observer.NewDefaultNotifier()
+	if n == nil {
+		return
+	}
 
 	// Create Listener from Listenerfunc (func(Message))
 	// This is a simple Listener that will print out the message
@@ -44,24 +48,28 @@ func main() {
 		switch m := message.(type) {
 		case *observer.SimpleMessage:
 			fmt.Printf("Received Message [%s] %s @%v\n", m.Type, m.Message, m.Timestamp)
-		case *observer.Message:
+		default:
 			fmt.Println(message)
 		}
 	})
+	// listener uses a channel under the hood, Close it for garbage collection
+	defer l.Close()
 
-	// Subscribe Listener to Notifier
+	// Subscribe Listener to Notifiers
 	n.Subscribe(l)
-	defer n.Unsubscribe(l)
+	n2.Subscribe(l)
 
 	m := observer.NewMessage("Hello from the other side!", "ECHO")
+	m2 := observer.NewMessage("Hello also from me!", "ECHO2")
 
 	n.Notify(m)
+	n2.Notify(m2)
 }
 ```
 
 ```shell
-# Might not print anything because of premature return from main
 $ go run observer/examples/echo.go
 
-Received Message [Hello from the other side!] ECHO @2021-12-03 19:23:28.1760537 +0100 CET m=+0.000046601
+Received Message [ECHO] Hello from the other side! @2021-12-03 21:08:01.5650042 +0100 CET m=+0.000041501
+Received Message [OTHERECHO] Hello also from me! @2021-12-03 21:08:01.5650054 +0100 CET m=+0.000042601
 ```
