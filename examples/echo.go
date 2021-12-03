@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// Create Notifier
-	n := observer.NewDefaultNotifier
+	n := observer.NewDefaultNotifier()
 	if n == nil {
 		return
 	}
@@ -27,6 +27,7 @@ func main() {
 
 	// Subscribe Listener to Notifier
 	n.Subscribe(l)
+	defer n.Unsubscribe(l)
 
 	m := observer.NewMessage("ECHO", "Hello from the other side!")
 

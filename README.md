@@ -17,40 +17,51 @@ go get -u github.com/danielp93/observer
 
 * For advanced customization the library provides interfaces
 
+* Be aware that this 
+
 
 ##
 ```Go
 package main
 
 import (
-    "github.com/danielp93/observer"
+	"fmt"
+
+	"github.com/danielp93/observer"
 )
 
 func main() {
-    // Create Notifier
-    n := observer.NewDefaultNotifier
-    if n == nil {
-        return
-    }
+	// Create Notifier
+	n := observer.NewDefaultNotifier()
+	if n == nil {
+		return
+	}
 
-    // Create Listener from Listenerfunc (func(Message))
-    // This is a simple Listener that will print out the message
-    // If message is a Simplemessage it also will print the type and timestamp
-    l := observer.ListenerFunc(func(message observer.Message){
-        switch m := message.(type) {
-        case observer.SimpleMessage:
-            fmt.Printf("Received Message [%s] %s @%v\n", m.Type, m.Message, m.Timestamp)
-            
-        }
-        default:
-            fmt.Println(message)
-    })
+	// Create Listener from Listenerfunc (func(Message))
+	// This is a simple Listener that will print out the message
+	// If message is a Simplemessage it also will print the type and timestamp
+	l := observer.ListenerFunc(func(message observer.Message) {
+		switch m := message.(type) {
+		case *observer.SimpleMessage:
+			fmt.Printf("Received Message [%s] %s @%v\n", m.Type, m.Message, m.Timestamp)
+		case *observer.Message:
+			fmt.Println(message)
+		}
+	})
 
-    // Subscribe Listener to Notifier
-    n.Subscribe(l)
+	// Subscribe Listener to Notifier
+	n.Subscribe(l)
+	defer n.Unsubscribe(l)
 
-    m := NewMessage("ECHO", "Hello from the other side!")
+	m := observer.NewMessage("Hello from the other side!", "ECHO")
 
-    n.Notify(m)
+	n.Notify(m)
 }
-````
+```
+
+```shell
+# Might not print anything because of premature return from main
+$ go run observer/examples/echo.go
+
+Received Message [Hello from the other side!] ECHO @2021-12-03 19:23:28.1760537 +0100 CET m=+0.000046601
+```
