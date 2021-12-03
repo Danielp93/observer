@@ -6,22 +6,20 @@ import (
 )
 
 type Message interface {
-	Type() string
-	Timestamp() time.Time
 	fmt.Stringer
 }
 
 type SimpleMessage struct {
-	Ts      time.Time
-	T       string
-	Message string
+	Timestamp time.Time
+	Type      string
+	Message   string
 }
 
 func NewMessage(message string, messagetype string) Message {
 	return SimpleMessage{
-		Ts:      time.Now(),
-		T:       messagetype,
-		Message: message,
+		Timestamp: time.Now(),
+		Type:      messagetype,
+		Message:   message,
 	}
 }
 
