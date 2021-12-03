@@ -16,21 +16,13 @@ type SimpleMessage struct {
 }
 
 func NewMessage(message string, messagetype string) Message {
-	return SimpleMessage{
+	return &SimpleMessage{
 		Timestamp: time.Now(),
 		Type:      messagetype,
 		Message:   message,
 	}
 }
 
-func (s SimpleMessage) Timestamp() time.Time {
-	return s.Ts
-}
-
-func (s SimpleMessage) Type() string {
-	return s.T
-}
-
-func (s SimpleMessage) String() string {
+func (s *SimpleMessage) String() string {
 	return s.Message
 }
