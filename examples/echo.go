@@ -23,7 +23,7 @@ func main() {
 	l := observer.ListenerFunc(func(message observer.Message) {
 		switch m := message.(type) {
 		case *observer.SimpleMessage:
-			fmt.Printf("Received Message [%s] %s @%v\n", m.Type, m.Message, m.Timestamp)
+			fmt.Printf("Received Message [%s] %s @%v\n", m.Type(), m.String(), m.Timestamp())
 		default:
 			fmt.Println(message)
 		}
